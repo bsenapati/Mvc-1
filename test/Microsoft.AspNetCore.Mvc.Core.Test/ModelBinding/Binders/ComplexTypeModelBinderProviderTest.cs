@@ -55,11 +55,39 @@ namespace Microsoft.AspNetCore.Mvc.ModelBinding.Binders
             Assert.IsType<ComplexTypeModelBinder>(result);
         }
 
+        [Theory]
+        [InlineData(typeof(ClassWithNoDefaultConstructor))]
+        [InlineData(typeof(ClassWithStaticDefaultConstructor))]
+        public void Create_ForModelTypeWith_NoDefaultPublicConstructor_ReturnsNull(Type modelType)
+        {
+            // Arrange
+            var provider = new ComplexTypeModelBinderProvider();
+            var context = new TestModelBinderProviderContext(modelType);
+
+            // Act
+            var result = provider.GetBinder(context);
+
+            // Assert
+            Assert.Null(result);
+        }
+
         private class Person
         {
             public string Name { get; set; }
 
             public int Age { get; set; }
+        }
+
+        private class ClassWithNoDefaultConstructor
+        {
+            public ClassWithNoDefaultConstructor(int id) { }
+        }
+
+        private class ClassWithStaticDefaultConstructor
+        {
+            static ClassWithStaticDefaultConstructor() { }
+
+            public ClassWithStaticDefaultConstructor(int id) { }
         }
     }
 }
